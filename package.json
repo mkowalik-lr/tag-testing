@@ -1,0 +1,30 @@
+{
+  "name": "tag-testing",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "build": "node build.js",
+    "lint": "echo \"hello\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkowalik-lr/tag-testing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mkowalik-lr/tag-testing/issues"
+  },
+  "homepage": "https://github.com/mkowalik-lr/tag-testing#readme",
+  "dependencies": {
+    "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.6",
+    "release-it": "^19.2.4"
+  }
+}

@@ -1,0 +1,43 @@
+name: Create Release Stable
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    # Pomija job (i wszystkie zależne) gdy bot pushuje commit z bumped version,
+    # zapobiegając rekurencyjnemu wyzwalaniu tego workflow.
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+    uses: ./.github/workflows/_check.yml
+
+  create-stable-release:
+    name: Create Stable Release
+    needs: [check]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run release-it (stable)
+        run: npx release-it --ci

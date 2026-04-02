@@ -1,0 +1,91 @@
+name: Publish Package to NPM
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/_check.yml
+
+  publish:
+    name: Publish to NPM
+    needs: [check]
+    runs-on: ubuntu-latest
+    # environment: production-npm-release-approvals
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: lib
+          path: .
+
+      - name: Generate release summary
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VERSION=$(node -p "require('./package.json').version")
+
+          PACK_OUTPUT=$(npm pack --dry-run 2>&1)
+
+          echo "## 📦 Release: ${PKG_NAME}@${PKG_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<details>" >> $GITHUB_STEP_SUMMARY
+          echo "<summary>📋 Package contents (npm pack --dry-run)</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${PACK_OUTPUT}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish package to npm
+        run: |
+          if [[ "${{ github.ref_name }}" == *"-"* ]]; then
+            echo "publish beta"
+          else
+            echo "publish stable"
+          fi
+
+  sync-develop:
+    name: Sync develop with main
+    needs: [publish]
+    if: ${{ !contains(github.ref_name, '-') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Switch to develop branch
+        run: git checkout develop
+
+      - name: Commit and push if changed
+        run: |
+          git rebase origin/main
+          git push origin develop
