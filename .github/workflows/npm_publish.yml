@@ -13,11 +13,10 @@ jobs:
   check:
     uses: ./.github/workflows/_check.yml
 
-  publish:
-    name: Publish to NPM
+  prepare-release:
+    name: Prepare Release Summary
     needs: [check]
     runs-on: ubuntu-latest
-    environment: production-npm-release-approvals
 
     steps:
       - name: Checkout tag
@@ -29,7 +28,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          registry-url: "https://registry.npmjs.org"
 
       - name: Download build artifacts
         uses: actions/download-artifact@v6
@@ -53,6 +51,30 @@ jobs:
           echo "${PACK_OUTPUT}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+  publish:
+    name: Publish to NPM
+    needs: [prepare-release]
+    runs-on: ubuntu-latest
+    environment: production-npm-release-approvals
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: lib
+          path: .
 
       - name: Publish package to npm
         run: |
