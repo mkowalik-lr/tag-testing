@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.1-beta.0 (2026-04-02)
+
 ## [1.9.0](https://github.com/mkowalik-lr/tag-testing/compare/v1.8.1...v1.9.0) (2026-04-01)
 
 ### Features
