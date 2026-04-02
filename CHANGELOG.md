@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.3](https://github.com/mkowalik-lr/tag-testing/compare/v0.0.2...v0.0.3) (2026-04-02)
+
+### Bug Fixes
+
+* remove unnecessary path specification in artifact download and add debugging step ([853e664](https://github.com/mkowalik-lr/tag-testing/commit/853e664e4c2799627cc3a26c9bfaa5026de721e4))
+
 ## [0.0.2](https://github.com/mkowalik-lr/tag-testing/compare/v0.0.1...v0.0.2) (2026-04-02)
 
 ## 0.0.1 (2026-04-02)
