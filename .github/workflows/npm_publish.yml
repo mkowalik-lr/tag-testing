@@ -17,7 +17,7 @@ jobs:
     name: Publish to NPM
     needs: [check]
     runs-on: ubuntu-latest
-    # environment: production-npm-release-approvals
+    environment: production-npm-release-approvals
 
     steps:
       - name: Checkout tag
